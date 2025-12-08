@@ -10,14 +10,14 @@
             margin: 0;
             padding: 0;
             font-family: "Helvetica Neue", Arial, "Heiti TC", "微軟正黑體", sans-serif;
-            background-color: #111; /* 深色背景更有質感 */
+            background-color: #111;
             color: #fff;
-            overflow-x: hidden; /* 防止左右晃動 */
+            overflow-x: hidden;
         }
 
         /* --- 視覺設計 --- */
         header {
-            height: 100vh; /* 佔滿整個螢幕高度 */
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -26,7 +26,7 @@
             background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80');
             background-size: cover;
             background-position: center;
-            background-attachment: fixed; /* 關鍵：讓背景固定不動，產生視差效果 */
+            background-attachment: fixed;
         }
 
         h1 {
@@ -38,56 +38,76 @@
 
         .subtitle {
             font-size: 1.5rem;
-            color: #f1c40f; /* 時代力量代表色黃色系 */
+            color: #f1c40f;
             font-weight: 300;
         }
 
-        /* --- 敘事區塊 (Scrollytelling Sections) --- */
-        .content-section {
+        /* --- Sticky Graphic 佈局 (關鍵修改) --- */
+        .sticky-container {
+            display: flex; /* 讓左右並排 */
             position: relative;
-            padding: 100px 20px;
-            min-height: 80vh;
+            background-color: #000;
+        }
+
+        /* 左邊：滾動的文字 */
+        .scroll-text {
+            width: 40%; 
+            position: relative;
+            z-index: 2;
+            padding-bottom: 20vh;
+        }
+
+        /* 右邊：固定的圖表 (Flourish 放這裡) */
+        .sticky-visual {
+            width: 60%; 
+            height: 100vh; 
+            position: sticky; /* 讓它黏在螢幕上 */
+            top: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 2; /* 確保文字在背景之上 */
+            background-color: #111;
         }
 
-        /* 不同的背景圖，模擬不同的章節 */
-        .bg-1 { background-color: #222; } /* 純色過場 */
-        .bg-2 {
-            /* 這裡換一張圖 */
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://newpowerparty.tw/wp-content/uploads/2025/03/黨公職人員_合成合照_官網封面裁切.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-        .bg-3 { background-color: #1a1a1a; }
-
-        .text-box {
-            max-width: 600px;
-            background: rgba(0, 0, 0, 0.6); /* 半透明黑底，增加可讀性 */
-            padding: 40px;
-            border-left: 5px solid #f1c40f; /* 黃色裝飾線 */
-            line-height: 1.8;
-            font-size: 1.2rem;
-            
-            /* 動畫初始狀態：隱藏且位置稍微往下 */
-            opacity: 0;
-            transform: translateY(50px);
-            transition: all 1s ease-out; /* 動畫持續時間 */
+        /* 調整 Flourish 容器的大小 */
+        .chart-box {
+            width: 90%; /* 圖表寬度 */
+            max-width: 800px;
         }
 
-        /* 當 JavaScript 加入這個 class 時，文字會浮現 */
-        .text-box.visible {
+        /* 每一段文字的樣式 */
+        .step {
+            min-height: 80vh; 
+            padding: 20px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0.3;
+            transition: opacity 0.5s;
+        }
+        
+        .step.active {
             opacity: 1;
-            transform: translateY(0);
+        }
+
+        .step h2 {
+            font-size: 2.5rem;
+            color: #f1c40f;
+            margin-bottom: 1rem;
+        }
+
+        .step p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            background: rgba(0,0,0,0.7); /* 增加文字底色 */
+            padding: 20px;
+            border-radius: 10px;
         }
 
         footer {
             text-align: center;
             padding: 50px;
-            background: #000;
+            background: #222;
             color: #888;
         }
     </style>
@@ -99,24 +119,32 @@
         <p class="subtitle">時代力量十年回顧：融媒體深度報導</p>
     </header>
 
-    <section class="content-section bg-1">
-        <div class="text-box">
-            <h2>輝煌的起點</h2>
-            <p>2016年，乘著太陽花運動的浪潮，時代力量一舉攻下立法院五席次，成為國會關鍵少數。那一年，街頭的熱情轉化為議場的戰力，黃色的旗幟在全台灣飄揚。</p>
+    <section class="sticky-container">
+        
+        <div class="sticky-visual">
+            <div class="chart-box">
+                <div class="flourish-embed flourish-parliament" data-src="visualisation/26690535"></div>
+                <script src="https://public.flourish.studio/resources/embed.js"></script>
+            </div>
         </div>
-    </section>
 
-    <section class="content-section bg-2">
-        <div class="text-box">
-            <h2>路線的歧異</h2>
-            <p>然而，隨著政治現實的擠壓，黨內對於「與民進黨的距離」產生了路線之爭。從小綠標籤到堅持自主，每一次的決策都在黨內留下了裂痕。</p>
-        </div>
-    </section>
+        <div class="scroll-text">
+            
+            <div class="step active">
+                <h2>輝煌的起點 (2016)</h2>
+                <p>2016年，乘著太陽花運動的浪潮，時代力量一舉攻下立法院五席次，成為國會關鍵少數。那一年，街頭的熱情轉化為議場的戰力，黃色的旗幟在全台灣飄揚。</p>
+            </div>
 
-    <section class="content-section bg-3">
-        <div class="text-box">
-            <h2>未來的挑戰</h2>
-            <p>如今，面對新的政治版圖，這個曾經承載年輕人希望的政黨，正站在十字路口。我們運用數據與影像，帶您重新檢視這段歷程。</p>
+            <div class="step">
+                <h2>路線的歧異 (2020)</h2>
+                <p>然而，隨著政治現實的擠壓，黨內對於「與民進黨的距離」產生了路線之爭。從小綠標籤到堅持自主，每一次的決策都在黨內留下了裂痕。</p>
+            </div>
+
+            <div class="step">
+                <h2>未來的挑戰 (2024)</h2>
+                <p>如今，面對新的政治版圖，這個曾經承載年輕人希望的政黨，正站在十字路口。立委席次歸零，我們運用數據與影像，帶您重新檢視這段歷程。</p>
+            </div>
+
         </div>
     </section>
 
@@ -125,28 +153,20 @@
     </footer>
 
     <script>
-        // --- 這裡是用來偵測「滑到了沒」的程式碼 ---
+        // --- 簡單的 Intersection Observer ---
+        // 讓文字滑過去時變亮，增加閱讀體驗
+        const steps = document.querySelectorAll('.step');
         
-        // 設定觀察器：當元素進入畫面 20% 時觸發
-        const observerOptions = {
-            root: null, // 視窗
-            threshold: 0.2 // 20% 出現時觸發
-        };
-
-        const observer = new IntersectionObserver((entries, observer) => {
+        const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                // 如果元素進入畫面
                 if (entry.isIntersecting) {
-                    // 加入 'visible' class，讓 CSS 開始做動畫
-                    entry.target.classList.add('visible');
+                    steps.forEach(s => s.classList.remove('active'));
+                    entry.target.classList.add('active');
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.5 });
 
-        // 告訴觀察器要去盯著哪些東西 (所有 .text-box)
-        document.querySelectorAll('.text-box').forEach(box => {
-            observer.observe(box);
-        });
+        steps.forEach(step => observer.observe(step));
     </script>
 
 </body>
