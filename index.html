@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>時力的過去與未來？</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     <style>
         /* --- 基礎設定 --- */
         body, html {
@@ -12,10 +16,10 @@
             font-family: "Helvetica Neue", Arial, "Heiti TC", "微軟正黑體", sans-serif;
             background-color: #111;
             color: #fff;
-            overflow-x: hidden;
+            overflow-x: hidden; /* 隱藏橫向卷軸，交給 GSAP 控制 */
         }
 
-        /* --- 視覺設計 --- */
+        /* --- Header (保留你原本的) --- */
         header {
             height: 100vh;
             display: flex;
@@ -27,6 +31,8 @@
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
+            position: relative;
+            z-index: 20; /* 確保在最上層 */
         }
 
         h1 {
@@ -42,66 +48,85 @@
             font-weight: 300;
         }
 
-        /* --- Sticky Graphic 佈局 (關鍵修改) --- */
-        .sticky-container {
-            display: flex; /* 讓左右並排 */
-            position: relative;
-            background-color: #000;
+        /* --- 時光列車 (Horizontal Scroll) 設定 --- */
+        
+        /* 軌道容器：這是 GSAP 要控制移動的東西 */
+        .train-container {
+            display: flex; /* 讓車廂橫向排列 */
+            flex-wrap: nowrap;
+            width: 400%; /* 這裡有 4 個區塊 (3個年份 + 1個圖表)，所以寬度設 400% */
+            height: 100vh;
         }
 
-        /* 左邊：滾動的文字 */
-        .scroll-text {
-            width: 40%; 
-            position: relative;
-            z-index: 2;
-            padding-bottom: 20vh;
-        }
-
-        /* 右邊：固定的圖表 (Flourish 放這裡) */
-        .sticky-visual {
-            width: 60%; 
-            height: 100vh; 
-            position: sticky; /* 讓它黏在螢幕上 */
-            top: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #111;
-        }
-
-        /* 調整 Flourish 容器的大小 */
-        .chart-box {
-            width: 90%; /* 圖表寬度 */
-            max-width: 800px;
-        }
-
-        /* 每一段文字的樣式 */
-        .step {
-            min-height: 80vh; 
-            padding: 20px 40px;
+        /* 每一節車廂 */
+        .train-car {
+            width: 100vw; /* 每個車廂佔滿一個螢幕寬 */
+            height: 100vh;
+            flex-shrink: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            opacity: 0.3;
-            transition: opacity 0.5s;
-        }
-        
-        .step.active {
-            opacity: 1;
+            align-items: center;
+            position: relative;
+            border-right: 1px solid #333; /* 車廂分隔線 */
+            background-color: #111;
         }
 
-        .step h2 {
-            font-size: 2.5rem;
+        /* 年份大標題 (背景裝飾) */
+        .year-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 15rem;
+            font-weight: 900;
+            color: #222; /* 很淡的顏色當背景 */
+            z-index: 0;
+            user-select: none;
+        }
+
+        /* 故事內容框 */
+        .story-box {
+            z-index: 2;
+            max-width: 600px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #f1c40f;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .story-box h2 {
             color: #f1c40f;
-            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
         }
 
-        .step p {
+        .story-box p {
             font-size: 1.2rem;
             line-height: 1.8;
-            background: rgba(0,0,0,0.7); /* 增加文字底色 */
-            padding: 20px;
-            border-radius: 10px;
+        }
+
+        /* 終點站：Flourish 圖表區 */
+        .chart-section {
+            background: #000;
+        }
+        .flourish-container {
+            width: 80%;
+            max-width: 900px;
+        }
+
+        /* --- 車站標記 (固定在螢幕中間的線) --- */
+        /* 這會創造出「火車開過去，但你在看窗外」的感覺 */
+        .station-marker {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            width: 1px;
+            height: 100vh;
+            background: rgba(241, 196, 15, 0.2);
+            z-index: 10;
+            pointer-events: none;
         }
 
         footer {
@@ -116,57 +141,76 @@
 
     <header>
         <h1>第三勢力的興衰</h1>
-        <p class="subtitle">時代力量十年回顧：融媒體深度報導</p>
+        <p class="subtitle">向下捲動，進入時光列車</p>
     </header>
 
-    <section class="sticky-container">
-        
-        <div class="sticky-visual">
-            <div class="chart-box">
-                <div class="flourish-embed flourish-parliament" data-src="visualisation/26690535"></div>
-                <script src="https://public.flourish.studio/resources/embed.js"></script>
-            </div>
-        </div>
+    <div class="station-marker"></div>
 
-        <div class="scroll-text">
+    <div class="horizontal-scroll-wrapper">
+        <div class="train-container">
             
-            <div class="step active">
-                <h2>輝煌的起點 (2016)</h2>
-                <p>2016年，乘著太陽花運動的浪潮，時代力量一舉攻下立法院五席次，成為國會關鍵少數。那一年，街頭的熱情轉化為議場的戰力，黃色的旗幟在全台灣飄揚。</p>
-            </div>
+            <section class="train-car">
+                <div class="year-bg">2016</div>
+                <div class="story-box">
+                    <h2>輝煌的起點</h2>
+                    <p>乘著太陽花運動的浪潮，時代力量一舉攻下立法院五席次，成為國會關鍵少數。</p>
+                    <p>那一年，街頭的熱情轉化為議場的戰力，黃色的旗幟在全台灣飄揚。</p>
+                </div>
+            </section>
 
-            <div class="step">
-                <h2>路線的歧異 (2020)</h2>
-                <p>然而，隨著政治現實的擠壓，黨內對於「與民進黨的距離」產生了路線之爭。從小綠標籤到堅持自主，每一次的決策都在黨內留下了裂痕。</p>
-            </div>
+            <section class="train-car">
+                <div class="year-bg">2020</div>
+                <div class="story-box">
+                    <h2>路線的歧異</h2>
+                    <p>隨著政治現實的擠壓，黨內對於「與民進黨的距離」產生了路線之爭。</p>
+                    <p>從小綠標籤到堅持自主，每一次的決策都在黨內留下了裂痕。席次縮減至 3 席。</p>
+                </div>
+            </section>
 
-            <div class="step">
-                <h2>未來的挑戰 (2024)</h2>
-                <p>如今，面對新的政治版圖，這個曾經承載年輕人希望的政黨，正站在十字路口。立委席次歸零，我們運用數據與影像，帶您重新檢視這段歷程。</p>
-            </div>
+            <section class="train-car">
+                <div class="year-bg">2024</div>
+                <div class="story-box">
+                    <h2>未來的挑戰</h2>
+                    <p>面對新的政治版圖，曾經承載年輕人希望的政黨，正面臨生死存亡。</p>
+                    <p>立委席次歸零，每七個黨員有六個離開。</p>
+                </div>
+            </section>
+
+            <section class="train-car chart-section">
+                <div class="year-bg">DATA</div>
+                <div class="flourish-container">
+                    <div class="flourish-embed flourish-parliament" data-src="visualisation/26690535"></div>
+                    <script src="https://public.flourish.studio/resources/embed.js"></script>
+                </div>
+            </section>
 
         </div>
-    </section>
+    </div>
 
     <footer>
         <p>This is the final report of Yun-Chia Lai, student in NTU majoring in Atmospheric Sciences.</p>
     </footer>
 
     <script>
-        // --- 簡單的 Intersection Observer ---
-        // 讓文字滑過去時變亮，增加閱讀體驗
-        const steps = document.querySelectorAll('.step');
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    steps.forEach(s => s.classList.remove('active'));
-                    entry.target.classList.add('active');
-                }
-            });
-        }, { threshold: 0.5 });
+        // 註冊外掛
+        gsap.registerPlugin(ScrollTrigger);
 
-        steps.forEach(step => observer.observe(step));
+        // 設定橫向捲動
+        const container = document.querySelector(".train-container");
+        const sections = gsap.utils.toArray(".train-car");
+
+        gsap.to(sections, {
+            xPercent: -100 * (sections.length - 1), // 把所有車廂往左拉
+            ease: "none", // 等速移動
+            scrollTrigger: {
+                trigger: ".horizontal-scroll-wrapper",
+                pin: true, // 釘住畫面
+                scrub: 1, // 綁定滾輪，數值越大越平滑
+                // end 決定了這個特效要「捲多長」才結束
+                // 3000px 代表你需要往下捲動 3000px 才能看完這 4 個畫面
+                end: "+=3000", 
+            }
+        });
     </script>
 
 </body>
