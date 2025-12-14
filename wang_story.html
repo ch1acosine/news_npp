@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王婉諭：那通改變命運的電話</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- 全局設定 --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            color: #333;
+            line-height: 1.8;
+            background-color: #f9f9f9;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Noto Serif TC', serif; /* 標題使用明體 */
+            font-weight: 700;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* 返回按鈕 */
+        .back-nav {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        
+        .back-nav a {
+            text-decoration: none;
+            color: #fff;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+            transition: background 0.3s;
+        }
+
+        .back-nav a:hover {
+            background: rgba(0,0,0,0.8);
+        }
+
+        /* --- 1. 首圖 Hero Section --- */
+        .hero {
+            height: 100vh;
+            width: 100%;
+            background-image: url('Wang_cover.png'); /* 替換圖片路徑 */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* 黑色遮罩，讓文字更清楚 */
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); 
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: #fff;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* --- 2. 前言區塊 --- */
+        .intro-section {
+            max-width: 800px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        /* --- 3. 電話動畫區塊 (Scrollytelling) --- */
+        .phone-section {
+            position: relative;
+            height: 100vh; /* 佔滿一頁 */
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #000;
+            color: #fff;
+        }
+
+        /* 模糊背景 */
+        .phone-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('car_view_placeholder.jpg'); /* 建議找一張車窗外的圖 */
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px) brightness(0.4); /* 模糊且變暗 */
+            transform: scale(1.1);
+        }
+
+        .phone-container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* 手機 UI */
+        .phone-ui {
+            width: 280px;
+            height: 500px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 40px;
+            margin: 0 auto 30px auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            /* 預設隱藏，透過 JS 觸發 */
+            opacity: 0; 
+            transform: translateY(50px);
+            transition: all 1s ease;
+        }
+
+        /* 來電顯示震動動畫 */
+        @keyframes vibrate {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .phone-ui.active {
+            opacity: 1;
+            transform: translateY(0);
+            animation: vibrate 0.5s infinite; /* 持續震動 */
+        }
+
+        .caller-id {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .caller-status {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* 對話文字 */
+        .dialogue-text {
+            text-align: left;
+            padding: 20px;
+        }
+
+        .dialogue-line {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+            margin-bottom: 15px;
+            border-left: 3px solid #F9BE01;
+            padding-left: 15px;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.2rem;
+        }
+
+        /* 文字依序浮現 (配合 JS) */
+        .dialogue-line.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- 4. 故事內文區塊 --- */
+        .story-block {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin: 60px 0 30px 0;
+            color: #141414;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: #F9BE01;
+            margin: 15px auto 0;
+        }
+
+        /* --- 5. 影片嵌入 --- */
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 比例 */
+            height: 0;
+            overflow: hidden;
+            max-width: 1000px;
+            margin: 40px auto;
+            background: #000;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- 6. 律師團區塊 (暖色背景) --- */
+        .lawyer-section {
+            background-color: #f7f3e8; /* 米黃色暖色調 */
+            padding: 80px 20px;
+            margin-top: 60px;
+        }
+
+        .lawyer-intro {
+            max-width: 800px;
+            margin: 0 auto 40px auto;
+            text-align: center;
+        }
+
+        /* 律師卡片 Grid */
+        .lawyer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .lawyer-card {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .lawyer-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* 預設稍微暗一點 */
+            filter: brightness(0.7) grayscale(30%);
+            transition: all 0.5s ease;
+        }
+
+        .lawyer-name {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        /* Hover 特效 */
+        .lawyer-card:hover img {
+            filter: brightness(1.1) grayscale(0%);
+            transform: scale(1.05);
+        }
+
+        .lawyer-card:hover .lawyer-name {
+            opacity: 1;
+            bottom: 30px; /* 稍微往上浮 */
+            font-size: 1.4rem;
+        }
+
+        /* --- 7. 那道光 & 浮木 --- */
+        .full-width-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 40px 0;
+        }
+
+        .highlight-quote {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 1.5rem;
+            color: #555;
+            border-left: 5px solid #F9BE01;
+            padding-left: 20px;
+            margin: 40px 0;
+            font-style: italic;
+        }
+
+        /* 浮木與結尾 (深色區塊) */
+        .dark-section {
+            background-color: #1a1a1a;
+            color: #ccc;
+            padding: 80px 20px;
+        }
+
+        .dark-section h2 {
+            color: #F9BE01;
+        }
+
+        .dark-section .highlight-quote {
+            color: #fff;
+            border-color: #fff;
+        }
+        
+        /* 結尾圖片 */
+        .end-img-container {
+            position: relative;
+            max-width: 1000px;
+            margin: 40px auto;
+        }
+        
+        .end-img-container img {
+            width: 100%;
+            border-radius: 4px;
+            filter: brightness(0.8);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="back-nav">
+        <a href="index.html">← 回選單</a>
+    </div>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">「如果有機會可以做更多，為什麼不試看看？」</h1>
+        </div>
+    </header>
+
+    <section class="intro-section">
+        <p>2016年，一場震驚社會的「小燈泡事件」，讓大眾記住了王婉諭。當時鏡頭前的她，強忍悲痛，冷靜而清晰地表達著一位母親的訴求。</p>
+        <p>但真正讓她從一位受害者家屬，轉身踏入政治場域的關鍵，發生在三年後的某個午後。</p>
+    </section>
+
+    <section class="phone-section" id="phoneTrigger">
+        <div class="phone-bg"></div> <div class="phone-container">
+            <div class="phone-ui" id="phoneUI">
+                <div style="margin-bottom: 20px;">
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="#fff"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                </div>
+                <div class="caller-id">時代力量</div>
+                <div class="caller-status">來電中...</div>
+            </div>
+
+            <div class="dialogue-text">
+                <div class="dialogue-line line-1">2019 年 11 月 11 日，王婉諭開著車載著小孩...</div>
+                <div class="dialogue-line line-2">突然，手機響起，是一通改變人生的電話。</div>
+                <div class="dialogue-line line-3">「2020 的不分區名單，女生人數還不夠...」</div>
+                <div class="dialogue-line line-4">「妳有意願加入嗎？」</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="story-block">
+        <p>王婉諭立刻將車停在路邊，她撥了幾通電話給家人。在家人的鼓勵之下，短短的兩三個小時內，她做出了那個徹底改寫人生的決定：決定加入。</p>
+        <p>一切發生得太快，當時時代力量告訴她：「明天就要辦不分區記者會。」</p>
+        <p>那天晚上，王婉諭翻箱倒櫃，找出一套許久未穿的正裝，最後決定上陣的服裝<strong>「連褲子都扣不太起來」</strong>，她笑著回憶。</p>
+        <p>帶著那件緊繃的褲子與一顆忐忑的心，王婉諭就這樣匆促地被推上了政治舞台。</p>
+    </section>
+
+    <div class="video-wrapper">
+        <iframe src="https://www.youtube.com/embed/OFQFDjFHrfs?start=109" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <section class="lawyer-section">
+        <div class="lawyer-intro">
+            <h2 class="section-title">是什麼讓她義無反顧？</h2>
+            <p>對於當時對各大政黨生態幾乎一無所知的王婉諭來說，讓她點頭的理由，不是政治的光鮮亮麗，而是一份深厚的「情義」。</p>
+            <p>促使她答應的關鍵，是這群當時協助她的律師們。在漫漫長夜中，是他們陪著她走過最難熬的時光。</p>
+        </div>
+
+        <div class="lawyer-grid">
+            <div class="lawyer-card">
+                <img src="Law_Lee.jpg" alt="李宣毅">
+                <div class="lawyer-name">李宣毅 律師</div>
+            </div>
+            <div class="lawyer-card">
+                <img src="Law_Meng.jpg" alt="陳孟秀">
+                <div class="lawyer-name">陳孟秀 律師</div>
+            </div>
+            <div class="lawyer-card">
+                <img src="Law_Ding.jpg" alt="丁穩勝">
+                <div class="lawyer-name">丁穩勝 律師</div>
+            </div>
+            <div class="lawyer-card">
+                <img src="Law_Tseng.jpg" alt="曾威凱">
+                <div class="lawyer-name">曾威凱 律師</div>
+            </div>
+        </div>
+
+        <div class="story-block">
+            <p style="margin-top: 40px;">「我很認同他們，因為是他們陪伴我們這些人，度過了那些最辛苦的時刻。」</p>
+            <p>對王婉諭而言，這不是加入一個政黨，而是與一群曾經共患難的戰友，繼續並肩作戰。她看見了這群人眼中想要改變社會的光，而她決定成為那道光的一部分。</p>
+            <img src="Wang_light.jpg" alt="成為那道光" class="full-width-img">
+        </div>
+    </section>
+
+    <section class="dark-section">
+        <div class="story-block">
+            <h2 class="section-title" style="color: #F9BE01;">時力存在的價值：無助者的最後浮木</h2>
+            
+            <img src="IMG_5287.HEIC" alt="陳情會勘照片" class="full-width-img" style="opacity: 0.9;">
+            
+            <p>走過了那段最痛的路，王婉諭比誰都清楚「無助」的滋味。這也成為了她四年立委生涯中，最核心的價值導向。</p>
+            <p>在國會的四年裡，王婉諭辦公室接到的陳情案，往往帶著一種絕望的氣息。這些陳情人通常已經找遍了各大政黨的民意代表，卻因為案子太棘手、太難起訴，或者沒有新聞熱度而被拒之門外。</p>
+            <p><strong>「時代力量，是他們最後的浮木。」</strong></p>
+            <p>王婉諭清晰地記得一位遭到權勢性侵的被害人。當權力的高牆壓得受害者喘不過氣，所有人都勸這名受害者放棄時，只有時代力量選擇接住他。團隊陪著當事人一步步走過訴訟的泥淖，直到事後，當事人含著淚對她說：</p>
+            
+            <div class="highlight-quote">
+                「如果不是你們，我可能真的會走上絕路。」
+            </div>
+            
+            <p>這句話，像烙印一樣刻在王婉諭心裡。</p>
+        </div>
+
+        <div class="story-block">
+            <h2 class="section-title" style="color: #fff;">「你們不在了，我們還能找誰？」</h2>
+            <div class="end-img-container">
+                <img src="Wang_door.jpg" alt="離去的背影">
+            </div>
+            <p>政治是殘酷的。2024 年大選，時代力量無緣續留國會。當落選已成定局，最讓王婉諭感到心痛的，不是失去立委的光環，而是一位陳情人無助的提問：</p>
+            <p style="font-size: 1.3rem; color: #F9BE01; font-weight: bold;">「如果你們不在立法院了，以後我們遇到這種事，還可以找誰協助？」</p>
+            <p>那一刻，她答不上來。在語塞的背後，是深深的擔憂與不捨。</p>
+            <p>從那件扣不上的西裝褲開始，王婉諭走了很遠。如今的她，目光望向 2028 年。她想帶領時代力量重回國會，只為了當下一次有人在絕望中呼救時，那裡還有一根願意承接所有重量的浮木。</p>
+        </div>
+    </section>
+
+    <script>
+        // 設定觀察器：當物件進入畫面 30% 時觸發
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.3
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // 1. 觸發手機震動
+                    const phoneUI = document.getElementById('phoneUI');
+                    if(phoneUI) phoneUI.classList.add('active');
+
+                    // 2. 觸發文字依序浮現 (設定延遲)
+                    const lines = document.querySelectorAll('.dialogue-line');
+                    lines.forEach((line, index) => {
+                        setTimeout(() => {
+                            line.classList.add('show');
+                        }, index * 1200 + 500); // 每句間隔 1.2 秒，手機出現後 0.5 秒開始
+                    });
+
+                    // 停止觀察，避免重複觸發
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // 開始觀察電話區塊
+        const target = document.getElementById('phoneTrigger');
+        if(target) observer.observe(target);
+    </script>
+
+</body>
+</html>
