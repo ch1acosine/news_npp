@@ -51,8 +51,10 @@
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* 平滑過渡 */
             box-shadow: 0 4px 6px rgba(0,0,0,0.5);
-            /* 初始狀態稍微暗一點 */
-            filter: brightness(0.8); 
+            
+            /* 【修改點 3】調亮預設亮度 */
+            /* 原本是 0.8，現在改成 0.95 (幾乎不變暗)，或者改成 1.0 (完全原色) */
+            filter: brightness(0.95); 
         }
 
         /* --- 圖片設定 --- */
@@ -70,6 +72,8 @@
             left: 0;
             width: 100%;
             padding: 20px;
+            /* 加上 box-sizing 確保 padding 不會撐破寬度 */
+            box-sizing: border-box; 
             background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0)); /* 漸層黑底 */
             transform: translateY(20px);
             opacity: 0;
@@ -89,6 +93,12 @@
             color: #ddd;
             margin-bottom: 15px;
             display: block;
+
+            /* 【修改點 1 & 2】強制一行並省略過長文字 */
+            white-space: nowrap;      /* 強制不換行 */
+            overflow: hidden;         /* 超出容器部分隱藏 */
+            text-overflow: ellipsis;  /* 超出部分顯示 ... */
+            width: 100%;              /* 限制寬度 */
         }
 
         /* --- 入黨故事按鈕 --- */
@@ -164,21 +174,21 @@
                 </div>
             </div>
 
-            <div class="char-card" onclick="location.href='liao_story.html';">
+            <div class="char-card" onclick="location.href='lin_story.html';">
                 <img src="Lin_NF.png" alt="林彥甫">
                 <div class="char-info">
                     <span class="char-name">林彥甫</span>
                     <span class="char-role">那些被「二元對立」所遺忘的聲音</span>
-                    <a href="liao_story.html" class="enter-btn">閱讀故事 ►</a>
+                    <a href="lin_story.html" class="enter-btn">閱讀故事 ►</a>
                 </div>
             </div>
 
-            <div class="char-card" onclick="location.href='lin_story.html';">
+            <div class="char-card" onclick="location.href='liao_story.html';">
                 <img src="Liao_NF.png" alt="廖啟帆">
                 <div class="char-info">
                     <span class="char-name">廖啟帆</span>
                     <span class="char-role">從偶像崇拜到瀕臨失望，他在「全場噓聲」中看見了真正的時代力量</span>
-                    <a href="lin_story.html" class="enter-btn">閱讀故事 ►</a>
+                    <a href="liao_story.html" class="enter-btn">閱讀故事 ►</a>
                 </div>
             </div>
 
