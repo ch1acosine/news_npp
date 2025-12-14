@@ -3,289 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>時力的過去與未來</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
-
+    <title>人物誌選單</title>
     <style>
-        /* --- 基礎設定 --- */
-        body, html {
-            margin: 0;
-            padding: 0;
-            font-family: "Helvetica Neue", Arial, "微軟正黑體", sans-serif;
-            background-color: #111;
+        /* --- 區塊基礎設定 --- */
+        .npp-netflix-section {
+            background-color: #141414; /* Netflix 經典深黑底 */
             color: #fff;
-            overflow-x: hidden;
+            padding: 80px 5%;
+            font-family: "Noto Sans TC", sans-serif;
+            overflow: hidden; /* 避免放大特效超出邊界 */
         }
 
-        /* --- 1. 開場 Header --- */
-        header {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            position: relative;
-            z-index: 10;
-        }
-        h1 { font-size: 4rem; margin: 0; color: #f1c40f; text-shadow: 0 0 20px rgba(0,0,0,0.8); }
-        .subtitle { font-size: 1.5rem; margin-top: 20px; color: #ccc; }
-
-        /* --- 2. 橫向捲動區 (火車軌道) --- */
-        .horizontal-wrapper {
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
+        .npp-title-area {
+            text-align: center;
+            margin-bottom: 50px;
         }
 
-        .train-container {
-            display: flex;
-            width: 500%; /* ★注意：這裡有 5 個區塊，所以寬度設 500% */
-            height: 100%;
+        .npp-title-area h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
         }
 
-        /* 每一節車廂 (Slide) */
-        .train-car {
-            width: 100vw;
-            height: 100vh;
-            flex-shrink: 0;
+        .npp-title-area p {
+            color: #a3a3a3;
+            font-size: 1.1rem;
+        }
+
+        /* --- 卡片容器 (Flexbox) --- */
+        .character-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
-            border-right: 1px solid #222;
-            background: #000;
-        }
-
-        /* 內容排版：左圖右文 */
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
+            gap: 20px; /* 卡片間距 */
             max-width: 1200px;
-            width: 90%;
-            align-items: center;
+            margin: 0 auto;
+            flex-wrap: wrap; /* 手機版自動換行 */
         }
 
-        .content-img img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 0 30px rgba(241, 196, 15, 0.1);
-        }
-
-        .content-text h2 { font-size: 3rem; color: #f1c40f; margin-bottom: 20px; }
-        .content-text p { font-size: 1.2rem; line-height: 1.8; color: #ddd; }
-
-        /* --- 3. 底部固定時間軸 (Timeline Nav) --- */
-        .timeline-nav {
-            position: fixed;
-            bottom: 30px; /* 距離底部 */
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 40px; /* 年份之間的間距 */
-            z-index: 100;
-            padding: 15px 40px;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 50px;
-            border: 1px solid #333;
-            backdrop-filter: blur(5px);
-        }
-
-        /* 年份點點樣式 */
-        .nav-year {
-            font-size: 1rem;
-            color: #666; /* 未選中時是暗灰色 */
-            cursor: pointer;
-            transition: all 0.3s ease;
+        /* --- 單張卡片設計 --- */
+        .char-card {
             position: relative;
-            font-weight: bold;
+            width: 300px;         /* 卡片寬度 */
+            height: 450px;        /* 卡片高度 - 直式海報比例 */
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* 平滑過渡 */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            /* 初始狀態稍微暗一點 */
+            filter: brightness(0.8); 
         }
 
-        /* 選中時的樣式 (亮燈) */
-        .nav-year.active {
-            color: #f1c40f; /* 時力黃 */
-            font-size: 1.5rem; /* 變大 */
-            text-shadow: 0 0 10px #f1c40f; /* 發光 */
-            transform: scale(1.2);
+        /* --- 圖片設定 --- */
+        .char-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 確保圖片填滿不變形 */
+            transition: transform 0.4s ease;
         }
 
-        /* 上面的小點點裝飾 */
-        .nav-year::before {
-            content: '';
+        /* --- 資訊遮罩 (預設隱藏，滑入顯示) --- */
+        .char-info {
             position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            background: #666;
-            border-radius: 50%;
-            transition: all 0.3s;
-        }
-        .nav-year.active::before {
-            background: #f1c40f;
-            box-shadow: 0 0 5px #f1c40f;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0)); /* 漸層黑底 */
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease 0.1s; /* 延遲一點點出現 */
         }
 
-        /* --- 終點站 Flourish --- */
-        .flourish-box { width: 100%; max-width: 900px; }
+        .char-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #F9BE01; /* 時力黃 */
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .char-role {
+            font-size: 0.9rem;
+            color: #ddd;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* --- 入黨故事按鈕 --- */
+        .enter-btn {
+            display: inline-block;
+            padding: 8px 24px;
+            background-color: #F9BE01;
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .enter-btn:hover {
+            background-color: #fff; /* 滑鼠移到按鈕上變白 */
+        }
+
+        /* --- Hover 動畫特效 (核心) --- */
         
-        /* 手機版調整 */
+        /* 1. 卡片放大並浮起 */
+        .char-card:hover {
+            transform: scale(1.1) translateY(-10px); /* 放大1.1倍並往上浮 */
+            z-index: 10; /* 確保蓋過旁邊的卡片 */
+            box-shadow: 0 15px 30px rgba(0,0,0,0.7);
+            filter: brightness(1.2); /* 變亮 */
+            border: 2px solid #F9BE01; /* 加上黃色邊框增加聚焦感 */
+        }
+
+        /* 2. 顯示資訊文字 */
+        .char-card:hover .char-info {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 3. 圖片稍微再放大一點，製造景深感 */
+        .char-card:hover img {
+            transform: scale(1.05); 
+        }
+
+        /* --- RWD 手機版調整 --- */
         @media (max-width: 768px) {
-            .content-grid { grid-template-columns: 1fr; text-align: center; }
-            .timeline-nav { gap: 15px; padding: 10px 20px; bottom: 10px; width: 90%; justify-content: space-between;}
-            .nav-year { font-size: 0.8rem; }
-            .nav-year.active { font-size: 1rem; }
+            .char-card {
+                width: 90%; /* 手機版寬度佔滿 */
+                height: 400px;
+                margin-bottom: 20px;
+            }
+            
+            /* 手機版不使用 hover，直接顯示資訊或稍微簡化 */
+            .char-card:hover {
+                transform: scale(1.02); /* 手機版放大倍率小一點 */
+            }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>第三勢力的十年</h1>
-        <p class="subtitle">向下捲動，回顧時代力量的興衰</p>
-    </header>
+    <section class="npp-netflix-section">
+        <div class="npp-title-area">
+            <h2>人物誌：堅持的理由</h2>
+            <p>點擊下方卡片，看見他們入黨背後的故事</p>
+        </div>
 
-    <div class="horizontal-wrapper">
-        
-        <nav class="timeline-nav">
-            <div class="nav-year active" data-index="0">2015</div>
-            <div class="nav-year" data-index="1">2016</div>
-            <div class="nav-year" data-index="2">2020</div>
-            <div class="nav-year" data-index="3">2022</div>
-            <div class="nav-year" data-index="4">2024</div>
-        </nav>
-
-        <div class="train-container">
-
-            <section class="train-car">
-                <div class="content-grid">
-                    <div class="content-img">
-                        <img src="https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&w=800&q=80" alt="2015">
-                    </div>
-                    <div class="content-text">
-                        <h2>2015：風起雲湧</h2>
-                        <p>承載著太陽花運動後的社會期待，時代力量於1月25日正式成立。</p>
-                        <p>那是一個充滿希望的年代，黃色的旗幟象徵著新政治的可能。</p>
-                    </div>
+        <div class="character-container">
+            
+            <div class="char-card" onclick="location.href='wang_story.html';">
+                <img src="Wang_NF.png" alt="王婉諭">
+                <div class="char-info">
+                    <span class="char-name">王婉諭</span>
+                    <span class="char-role">時代力量黨主席</span>
+                    <a href="wang_story.html" class="enter-btn">閱讀故事 ►</a>
                 </div>
-            </section>
+            </div>
 
-            <section class="train-car">
-                <div class="content-grid">
-                    <div class="content-img">
-                        <img src="https://images.unsplash.com/photo-1555848962-6e79363ec58f?auto=format&fit=crop&w=800&q=80" alt="2016">
-                    </div>
-                    <div class="content-text">
-                        <h2>2016：輝煌時刻</h2>
-                        <p>首次參選即斬獲 5 席立委，成為國會第三大黨。</p>
-                        <p>林昶佐、洪慈庸、黃國昌等人進入立法院，展現關鍵少數的戰力。</p>
-                    </div>
+            <div class="char-card" onclick="location.href='liao_story.html';">
+                <img src="Liao_NF.png" alt="廖子齊">
+                <div class="char-info">
+                    <span class="char-name">廖子齊</span>
+                    <span class="char-role">新竹市議員</span>
+                    <a href="liao_story.html" class="enter-btn">閱讀故事 ►</a>
                 </div>
-            </section>
+            </div>
 
-            <section class="train-car">
-                <div class="content-grid">
-                    <div class="content-img">
-                        <img src="https://images.unsplash.com/photo-1529101091760-6149d4c81f22?auto=format&fit=crop&w=800&q=80" alt="2020">
-                    </div>
-                    <div class="content-text">
-                        <h2>2020：路線之爭</h2>
-                        <p>面對民進黨執政的壓力，黨內爆發路線之爭。</p>
-                        <p>儘管政黨票突破百萬，但席次縮減至 3 席，多位創黨元老退黨。</p>
-                    </div>
+            <div class="char-card" onclick="location.href='lin_story.html';">
+                <img src="Lin_NF.png" alt="林佳瑋">
+                <div class="char-info">
+                    <span class="char-name">林佳瑋</span>
+                    <span class="char-role">決策委員</span>
+                    <a href="lin_story.html" class="enter-btn">閱讀故事 ►</a>
                 </div>
-            </section>
-
-            <section class="train-car">
-                <div class="content-grid">
-                    <div class="content-img">
-                        <img src="https://images.unsplash.com/photo-1509023464722-18d996398ca8?auto=format&fit=crop&w=800&q=80" alt="2022">
-                    </div>
-                    <div class="content-text">
-                        <h2>2022：基層崩落</h2>
-                        <p>全台議員選舉大敗，僅當選 6 席。</p>
-                        <p>這顯示基層組織嚴重流失，黨的體質出現重大警訊。</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="train-car">
-                <div class="content-grid">
-                    <div class="content-text" style="text-align: center; grid-column: span 2;">
-                        <h2>2024：歸零與檢討</h2>
-                        <p>立委席次歸零，每七個黨員有六個離開。</p>
-                        <div class="flourish-box" style="margin: 20px auto;">
-                            <div class="flourish-embed flourish-parliament" data-src="visualisation/26690535"></div>
-                            <script src="https://public.flourish.studio/resources/embed.js"></script>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            </div>
 
         </div>
-    </div>
-
-    <footer style="height: 50vh; background: #000; display: flex; justify-content: center; align-items: center;">
-        <p style="color: #666;">Reported by Gemini & You</p>
-    </footer>
-
-    <script>
-        gsap.registerPlugin(ScrollTrigger);
-
-        // 1. 設定橫向捲動動畫
-        const sections = gsap.utils.toArray(".train-car");
-        const navYears = document.querySelectorAll(".nav-year");
-        
-        // 建立主要的水平捲動 Tween
-        let scrollTween = gsap.to(sections, {
-            xPercent: -100 * (sections.length - 1),
-            ease: "none",
-            scrollTrigger: {
-                trigger: ".horizontal-wrapper",
-                pin: true,
-                scrub: 1,
-                end: "+=4000", // 這裡控制滑動總長度，數值越大滑越慢
-            }
-        });
-
-        // 2. 核心邏輯：如何讓底部年份跟著變色？
-        // 我們利用 containerAnimation 屬性來偵測「火車開到哪了」
-        sections.forEach((section, i) => {
-            ScrollTrigger.create({
-                trigger: section,
-                containerAnimation: scrollTween, // 關鍵：綁定上面的水平動畫
-                start: "left center", // 當車廂的左邊碰到視窗中間時
-                end: "right center", // 當車廂的右邊離開視窗中間時
-                toggleClass: {
-                    targets: navYears[i], 
-                    className: "active" // 就把對應年份加上 active class
-                },
-                // 為了除錯，你可以把下面這行註解打開，會看到紅線標記
-                // markers: true 
-            });
-        });
-
-        // 3. (選用) 點擊底部年份，自動滑到該區塊
-        navYears.forEach((year, i) => {
-            year.addEventListener("click", () => {
-                // 計算要滑動的比例
-                let scrollPos = (scrollTween.scrollTrigger.end - scrollTween.scrollTrigger.start) * (i / (sections.length - 1));
-                
-                gsap.to(window, {
-                    scrollTo: scrollTween.scrollTrigger.start + scrollPos,
-                    duration: 1
-                });
-            });
-        });
-    </script>
+    </section>
 
 </body>
 </html>
